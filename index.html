@@ -31,7 +31,7 @@
 
   <main>
     <section class="hero">
-      <h1>
+      <h1 aria-label="Team TouchType">
         <span class="row">Team</span>
         <span class="row">TouchType<span class="caret" aria-hidden="true"></span></span>
       </h1>
@@ -65,5 +65,46 @@
 
   <footer>&copy; <span id="y">2026</span> Team TouchType</footer>
   <script>document.getElementById('y').textContent = new Date().getFullYear();</script>
+  <script>
+    // Type the title out letter by letter. Every letter is laid out from the start (just hidden),
+    // so nothing shifts while it types; the caret moves along behind the last typed letter.
+    (function () {
+      var h1 = document.querySelector('.hero h1');
+      var caret = h1.querySelector('.caret');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      var letters = [];
+      h1.querySelectorAll('.row').forEach(function (row) {
+        var text = row.firstChild.nodeValue;
+        row.firstChild.remove();
+        var frag = document.createDocumentFragment();
+        text.split('').forEach(function (c) {
+          var s = document.createElement('span');
+          s.className = 'ch';
+          s.textContent = c;
+          frag.appendChild(s);
+          letters.push(s);
+        });
+        row.insertBefore(frag, row.firstChild);
+      });
+      h1.classList.add('typing');
+      h1.querySelectorAll('.row')[0].prepend(caret);
+
+      var i = 0;
+      function next() {
+        var s = letters[i];
+        s.classList.add('on');
+        s.after(caret);
+        i++;
+        if (i === letters.length) { h1.classList.remove('typing'); return; }
+        // A short beat between the words, a little human jitter between letters.
+        var delay = letters[i].parentNode !== s.parentNode ? 320 : 70 + Math.random() * 70;
+        setTimeout(next, delay);
+      }
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(function () {
+        setTimeout(next, 350);
+      });
+    })();
+  </script>
 </body>
 </html>
